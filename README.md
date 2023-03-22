@@ -6,6 +6,16 @@ curl polaris-service:8000/devices
 mysql -h mysql -u root -p
 mysql -h localhost --protocol tcp -u root -p #uses TCP instead of unix socket
 
+sudo setcap 'cap_net_bind_service=+ep' /usr/bin/docker
+sudo setcap 'cap_net_bind_service=+ep' /usr/bin/dockerd
+
+/usr/bin/containerd
+
+
+>$ docker compose -f docker-compose-local.yml up
+
+Restart Nginx container
+>$ docker compose restart nginx
 
 ```mermaid
     sequenceDiagram
