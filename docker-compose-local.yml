@@ -1,0 +1,49 @@
+version : '3.1'
+
+networks:
+  polaris-net:
+
+services:
+  api:
+    image: polaris-service:latest
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DBUSER: root
+      DBPASSWD: Intel123!
+      DBNAME: polaris
+      DBHOST: mysql
+      DBPORT: 3306
+    ports:
+      - "8000:8000"
+    networks:
+      - polaris-net
+
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: Intel123!
+      MYSQL_DATABASE: polaris
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      start_period: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "3306:3306"
+    networks:
+      - polaris-net
+    volumes:
+      - "./polaris-service/mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql"
+
+  nginx:
+    image: nginx:1.23-alpine
+    restart: unless-stopped
+    volumes:
+      - ./web-ui/config/nginx:/etc/nginx/conf.d
+      - ./web-ui/www:/var/www/polaris
+    ports:
+      - "80:80"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
