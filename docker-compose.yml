@@ -36,4 +36,25 @@ services:
     networks:
       - polaris-net
     volumes:
-      - "./mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql"
+      - "./polaris-service/mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql"
+
+  nginx:
+    image: nginx:1.23-alpine
+    restart: unless-stopped
+    volumes:
+      - ./web-ui/config/nginx:/etc/nginx/conf.d
+      - ./web-ui/config/certbot/conf:/etc/letsencrypt
+      - ./web-ui/config/certbot/www:/var/www/certbot
+      - ./web-ui/www:/var/www/polaris
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./web-ui/config/certbot/conf:/etc/letsencrypt
+      - ./web-ui/config/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
