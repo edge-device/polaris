@@ -21,13 +21,13 @@ services:
       - polaris-net
 
   mysql:
-    image: mysql:latest
+    image: mysql:5.7
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: Intel123!
       MYSQL_DATABASE: polaris
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin" ,"--password=Intel123!", "ping", "-h", "localhost"]
       start_period: 10s
       timeout: 5s
       retries: 10
