@@ -1,10 +1,9 @@
 docker exec -it polaris-mysql-1 bash
-mysql -u root -p
+docker exec -it polaris-mysql-1 bash
 docker compose up
 docker compose up --detach
 curl polaris-service:8000/devices
-mysql -h mysql -u root -p
-mysql -h localhost --protocol tcp -u root -p #uses TCP instead of unix socket
+ #uses TCP instead of unix socket
 
 sudo setcap 'cap_net_bind_service=+ep' /usr/bin/docker
 sudo setcap 'cap_net_bind_service=+ep' /usr/bin/dockerd
@@ -12,28 +11,25 @@ sudo setcap 'cap_net_bind_service=+ep' /usr/bin/dockerd
 /usr/bin/containerd
 
 
->$ docker compose -f docker-compose-local.yml up
+`>$ docker compose -f docker-compose-local.yml up`
 
-Restart Nginx container
->$ docker compose restart nginx
+### Restart Nginx container
 
-```mermaid
-    sequenceDiagram
-    autonumber
-    participant device
-    participant Local router
-    participant Rendezvous service
-    participant Polaris service
-    participant Owner service
-    device->>+Local router: DHCP opt. 60
-    Local router->>-device: HTTP Boot URL
-    device->>+Polaris service: HTTP Boot request
-    Polaris service->>-device: POS UKI boot image
-    device->>+Rendezvous service: Request owner service URL
-    Rendezvous service->>-device: Owner service URL
-    device->>+Owner service: Provisioning secrets
-    Owner service->>-device: Polaris waiting room authorization
-    device->>+Polaris service: Request profile/join waiting room
-    Polaris service->>-device: Profile URL
-    device->>device: Device executes<br/>profile
-```
+`>$ docker compose restart nginx`
+
+### Loading git submodules
+
+The following command will download the submodules, polaris-service and web-ui, for Polaris.
+
+`>$git submodule update --init`
+
+If you edit the "submodule repos", then pushes will have to be forced with (might have to add '--force'):
+
+`>$ git push origin HEAD:main`
+
+
+### Test endpoints
+
+>$ wget http://localhost:8000/v1/device/garbage/waiting_room
+
+>$ wget https://polaris.westus3.cloudapp.azure.com/v1/device/garbage/waiting_room
