@@ -1,0 +1,48 @@
+version : '3.1'
+
+networks:
+  polaris-net:
+
+services:
+  api:
+    image: polaris-service:latest
+    environment:
+      DBUSER: polaris
+      #DBPASSWD: Intel123!
+      DBNAME: polaris
+      DBHOST: mysql
+      DBPORT: 3306
+      #JWTKEY: 
+    ports:
+      - "8000:8000"
+    networks:
+      - polaris-net
+    secrets:
+      - db_polaris_passwd
+      - jwt_signing_key
+
+  mysql:
+    image: mysql:5.7.41
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_passwd
+      MYSQL_PASSWORD_FILE: /run/secrets/db_polaris_passwd
+      MYSQL_USER: polaris
+      MYSQL_DATABASE: polaris
+    ports:
+      - "3306:3306"
+    networks:
+      - polaris-net
+    volumes:
+      - "./mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql"
+    secrets:
+      - db_root_passwd
+      - db_polaris_passwd
+
+secrets:
+  db_root_passwd:
+    file: secrets/db_root_passwd
+  db_polaris_passwd:
+    file: secrets/db_polaris_passwd
+  jwt_signing_key:
+    file: secrets/jwt_key
