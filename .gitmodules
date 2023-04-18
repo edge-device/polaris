@@ -1,6 +1,0 @@
-[submodule "web-ui"]
-	path = web-ui
-	url = git@github.com:edge-device/web-ui.git
-[submodule "polaris-service"]
-	path = polaris-service
-	url = git@github.com:edge-device/polaris-service.git
